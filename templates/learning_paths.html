@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduGenie | Learning Paths</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css?v=20261003-markdown" />
+  </head>
+  <body data-page="learning-paths">
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-icon">E</div>
+          <div>
+            <div class="eyebrow">Gemini AI Learning</div>
+            <div class="brand-name">EduGenie</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="/">Home</a>
+          <a href="/courses">Courses</a>
+          <a href="/ai-tutor">AI Tutor</a>
+          <a href="/quiz">Quiz</a>
+          <a href="/roadmaps">Roadmaps</a>
+          <a href="/summarizer">Summarizer</a>
+          <a href="/learning-paths">Learning Paths</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="section-block" id="learning-paths">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Career planning</div>
+              <h2>Personalized learning plans</h2>
+            </div>
+          </div>
+
+          <div class="quiz-shell glass">
+            <div class="quiz-form">
+              <input id="plan-subject" type="text" maxlength="5000" placeholder="What do you want to learn? e.g. Data science" aria-label="Topic to learn" required />
+              <input id="plan-goal" type="text" maxlength="500" value="Placement preparation" aria-label="Learning goal" />
+              <select id="plan-level" aria-label="Current skill level">
+                <option>Beginner</option>
+                <option selected>Intermediate</option>
+                <option>Advanced</option>
+              </select>
+              <button id="generate-path" class="primary" type="button">Generate my AI roadmap</button>
+            </div>
+            <div id="path-output" class="path-output" aria-live="polite">Enter any topic above and EduGenie will create a personalized study roadmap.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/static/app.js?v=20261003-markdown"></script>
+  </body>
+</html>

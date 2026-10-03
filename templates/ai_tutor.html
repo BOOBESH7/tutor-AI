@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduGenie | AI Tutor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css?v=20261003-markdown" />
+  </head>
+  <body data-page="ai-tutor">
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-icon">E</div>
+          <div>
+            <div class="eyebrow">Gemini AI Learning</div>
+            <div class="brand-name">EduGenie</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="/">Home</a>
+          <a href="/courses">Courses</a>
+          <a href="/ai-tutor">AI Tutor</a>
+          <a href="/quiz">Quiz</a>
+          <a href="/roadmaps">Roadmaps</a>
+          <a href="/summarizer">Summarizer</a>
+          <a href="/learning-paths">Learning Paths</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="section-block" id="ai-tutor">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">AI tutor</div>
+              <h2>Ask EduGenie</h2>
+            </div>
+          </div>
+
+          <div class="chat-shell glass">
+            <div class="chat-controls">
+              <select id="subject-select">
+                <option>Python</option>
+                <option>Java</option>
+                <option>DSA</option>
+                <option>DBMS</option>
+                <option>OS</option>
+                <option>Web Development</option>
+              </select>
+              <select id="level-select">
+                <option>Beginner</option>
+                <option selected>Intermediate</option>
+                <option>Advanced</option>
+              </select>
+              <select id="age-select">
+                <option>College</option>
+                <option>High School</option>
+              </select>
+            </div>
+
+            <div id="chat-box" class="chat-box"></div>
+            <div class="composer">
+              <textarea id="chat-input" rows="3" placeholder="Ask about DSA, Java, Python, DBMS, OS, or a study strategy..."></textarea>
+              <div class="composer-actions">
+                <button id="voice-btn" class="secondary">🎙️ Speak</button>
+                <button id="send-btn" class="primary">Send</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-block" id="explain-topic">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Concept guide</div>
+              <h2>Explain a topic</h2>
+            </div>
+          </div>
+          <div class="quiz-shell glass">
+            <div class="quiz-form">
+              <input id="explain-topic-input" type="text" placeholder="For example: Pythagoras theorem" />
+              <button id="explain-topic-btn" class="primary" type="button">Explain topic</button>
+            </div>
+            <div id="explain-topic-output" class="summary-box" aria-live="polite"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/static/app.js?v=20261003-markdown"></script>
+  </body>
+</html>

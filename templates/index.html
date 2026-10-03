@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduGenie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css?v=20261003-markdown" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-icon">E</div>
+          <div>
+            <div class="eyebrow">Gemini AI Learning</div>
+            <div class="brand-name">EduGenie</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="#home">Home</a>
+          <a href="#courses">Courses</a>
+          <a href="#ai-tutor">AI Tutor</a>
+          <a href="#quiz">Quiz</a>
+          <a href="#roadmaps">Roadmaps</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero" id="home">
+          <div class="hero-copy">
+            <div class="badge">Powered by Gemini</div>
+            <h1>Study smarter with an AI learning assistant built for engineering students.</h1>
+            <p>
+              Learn Python, Java, DSA, DBMS, OS, and placement-focused concepts with a premium platform designed for college success.
+            </p>
+            <div class="cta-row">
+              <button class="primary" id="scroll-to-chat">Ask the tutor</button>
+              <button class="secondary" id="scroll-to-courses">Explore courses</button>
+            </div>
+            <div class="meta-row">
+              <span>AI Tutor</span>
+              <span>Quiz Engine</span>
+              <span>Roadmaps</span>
+            </div>
+          </div>
+          <div class="hero-panel glass">
+            <div class="panel-header">Learning system</div>
+            <div class="big-number">Live</div>
+            <div class="panel-label">Student success platform</div>
+            <div class="mini-grid">
+              <div><strong>AI</strong><span>Gemini API</span></div>
+              <div><strong>Backend</strong><span>FastAPI</span></div>
+              <div><strong>API</strong><span>Gemini</span></div>
+              <div><strong>DB</strong><span>SQLite</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="stats-row">
+          <div class="glass stat-card">
+            <div class="stat-label">AI Mentor</div>
+            <div class="stat-value">Adaptive</div>
+          </div>
+          <div class="glass stat-card">
+            <div class="stat-label">Study Tracks</div>
+            <div class="stat-value">6+</div>
+          </div>
+          <div class="glass stat-card">
+            <div class="stat-label">Career Focus</div>
+            <div class="stat-value">Placement</div>
+          </div>
+        </section>
+
+        <section class="section-block" id="courses">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Popular tracks</div>
+              <h2>Course catalog</h2>
+            </div>
+          </div>
+          <div id="courses-container" class="course-grid"></div>
+        </section>
+
+        <section class="section-block" id="ai-tutor">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">AI tutor</div>
+              <h2>Ask EduGenie</h2>
+            </div>
+          </div>
+
+          <div class="chat-shell glass">
+            <div class="chat-controls">
+              <select id="subject-select">
+                <option>Python</option>
+                <option>Java</option>
+                <option>DSA</option>
+                <option>DBMS</option>
+                <option>OS</option>
+                <option>Web Development</option>
+              </select>
+              <select id="level-select">
+                <option>Beginner</option>
+                <option selected>Intermediate</option>
+                <option>Advanced</option>
+              </select>
+              <select id="age-select">
+                <option>College</option>
+                <option>High School</option>
+              </select>
+            </div>
+
+            <div id="chat-box" class="chat-box"></div>
+            <div class="composer">
+              <textarea id="chat-input" rows="3" placeholder="Ask about DSA, Java, Python, DBMS, OS, or a study strategy..."></textarea>
+              <div class="composer-actions">
+                <button id="voice-btn" class="secondary">🎙️ Speak</button>
+                <button id="send-btn" class="primary">Send</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-block" id="quiz">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Assessment</div>
+              <h2>Quiz center</h2>
+            </div>
+          </div>
+
+          <div class="quiz-shell glass">
+            <div class="quiz-form">
+              <select id="quiz-subject">
+                <option>Python</option>
+                <option>Java</option>
+                <option>DSA</option>
+                <option>DBMS</option>
+                <option>OS</option>
+                <option>Computer Networks</option>
+              </select>
+              <input id="quiz-topic" type="text" value="Object-Oriented Programming" />
+              <select id="quiz-level">
+                <option>Beginner</option>
+                <option selected>Intermediate</option>
+                <option>Advanced</option>
+              </select>
+              <button id="generate-quiz" class="primary">Generate quiz</button>
+            </div>
+            <div id="quiz-box" class="quiz-box"></div>
+          </div>
+        </section>
+
+        <section class="section-block" id="roadmaps">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Progress</div>
+              <h2>Learning roadmaps</h2>
+            </div>
+          </div>
+          <div id="roadmap-container" class="roadmap-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/static/app.js?v=20261003-markdown"></script>
+  </body>
+</html>

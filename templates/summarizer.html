@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduGenie | Summarizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css?v=20261003-markdown" />
+  </head>
+  <body data-page="summarizer">
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-icon">E</div>
+          <div>
+            <div class="eyebrow">Gemini AI Learning</div>
+            <div class="brand-name">EduGenie</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="/">Home</a>
+          <a href="/courses">Courses</a>
+          <a href="/ai-tutor">AI Tutor</a>
+          <a href="/quiz">Quiz</a>
+          <a href="/roadmaps">Roadmaps</a>
+          <a href="/summarizer">Summarizer</a>
+          <a href="/learning-paths">Learning Paths</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="section-block" id="summarizer">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Study support</div>
+              <h2>Summarize notes</h2>
+            </div>
+          </div>
+
+          <div class="quiz-shell glass">
+            <div class="quiz-form">
+              <textarea id="summary-input" placeholder="Paste chapter notes, class material, or a large paragraph here and EduGenie will create a quick summary."></textarea>
+            </div>
+            <div class="composer-actions">
+              <button id="summarize-btn" class="primary">Generate summary</button>
+            </div>
+            <div id="summary-output" class="summary-box">Your summary will appear here.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/static/app.js?v=20261003-markdown"></script>
+  </body>
+</html>

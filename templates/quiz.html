@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduGenie | Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css?v=20261003-markdown" />
+  </head>
+  <body data-page="quiz">
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-icon">E</div>
+          <div>
+            <div class="eyebrow">Gemini AI Learning</div>
+            <div class="brand-name">EduGenie</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="/">Home</a>
+          <a href="/courses">Courses</a>
+          <a href="/ai-tutor">AI Tutor</a>
+          <a href="/quiz">Quiz</a>
+          <a href="/roadmaps">Roadmaps</a>
+          <a href="/summarizer">Summarizer</a>
+          <a href="/learning-paths">Learning Paths</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="section-block" id="quiz">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Assessment</div>
+              <h2>Quiz center</h2>
+            </div>
+          </div>
+
+          <div class="quiz-shell glass">
+            <div class="quiz-form">
+              <select id="quiz-subject">
+                <option>Python</option>
+                <option>Java</option>
+                <option>DSA</option>
+                <option>DBMS</option>
+                <option>OS</option>
+                <option>Computer Networks</option>
+              </select>
+              <textarea id="quiz-topic" rows="3" placeholder="Enter a topic or paste a study passage">Object-Oriented Programming</textarea>
+              <select id="quiz-level">
+                <option>Beginner</option>
+                <option selected>Intermediate</option>
+                <option>Advanced</option>
+              </select>
+              <button id="generate-quiz" class="primary">Generate quiz</button>
+            </div>
+            <div id="quiz-box" class="quiz-box"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/static/app.js?v=20261003-markdown"></script>
+  </body>
+</html>
