@@ -14,10 +14,24 @@ from database import (
     migrate_legacy_chat_history,
     migrate_legacy_chat_history_file,
     save_chat_history,
+    _database_path,
 )
 
 
 class ChatHistoryDatabaseTests(unittest.TestCase):
+    def test_vercel_uses_writable_temporary_database_path_by_default(self) -> None:
+        with patch.dict(os.environ, {"VERCEL": "1"}, clear=True):
+            self.assertEqual(_database_path(), Path(tempfile.gettempdir()) / "edugenie.sqlite3")
+
+    def test_configured_database_path_overrides_vercel_temporary_default(self) -> None:
+        configured_path = Path(tempfile.gettempdir()) / "custom-history.sqlite3"
+        with patch.dict(
+            os.environ,
+            {"VERCEL": "1", "DATABASE_PATH": str(configured_path)},
+            clear=True,
+        ):
+            self.assertEqual(_database_path(), configured_path)
+
     def setUp(self) -> None:
         self.temporary_directory = tempfile.TemporaryDirectory()
         self.database_path = Path(self.temporary_directory.name) / "data" / "history.sqlite3"

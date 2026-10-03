@@ -68,6 +68,44 @@ class ChatHistoryApiTests(unittest.TestCase):
             "Web development", "Build a portfolio website", "Beginner"
         )
 
+    def test_learning_plan_endpoint_is_available_without_sign_in(self) -> None:
+        expected_plan = {"beginner": {"topics": ["HTML"]}}
+        with patch("main.recommend_learning_path", return_value=expected_plan):
+            with TestClient(main.app) as client:
+                response = client.post(
+                    "/learn/recommendations",
+                    json={"topic": "Web development", "goal": "Build a site", "level": "Beginner"},
+                )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["learning_path"], expected_plan)
+
+    def test_chat_endpoint_is_available_without_sign_in_and_does_not_save_history(self) -> None:
+        with patch("main.answer_question", return_value="A guest answer.") as answer_question:
+            with patch("main.save_chat_history") as save_history:
+                with TestClient(main.app) as client:
+                    response = client.post("/qa", json={"question": "What is HTML?"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["answer"], "A guest answer.")
+        self.assertFalse(response.json()["history_saved"])
+        self.assertIsNone(response.json()["history_warning"])
+        answer_question.assert_called_once()
+        save_history.assert_not_called()
+
+    def test_other_learning_tools_are_available_without_sign_in(self) -> None:
+        with patch("main.explain_topic", return_value="A guest explanation."), patch(
+            "main.generate_quiz", return_value=[{"question": "Guest quiz question?"}]
+        ), patch("main.summarize_text", return_value="A guest summary."):
+            with TestClient(main.app) as client:
+                responses = [
+                    client.post("/explain", json={"topic": "Photosynthesis"}),
+                    client.post("/quiz", json={"text": "Plants use sunlight to make food."}),
+                    client.post("/summarize", json={"text": "A short passage for a summary."}),
+                ]
+
+        self.assertEqual([response.status_code for response in responses], [200, 200, 200])
+
 
 if __name__ == "__main__":
     unittest.main()

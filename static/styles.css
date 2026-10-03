@@ -60,6 +60,7 @@
 .auth-mode, .auth-reset, .auth-close { border: 0; background: none; color: #a8ceff; cursor: pointer; }
 .auth-mode { display: block; margin: 18px auto 0; }
 .auth-reset { display: block; margin: 12px auto 0; color: var(--muted); font-size: 0.85rem; }
+.auth-reset[hidden] { display: none; }
 .auth-close { position: absolute; top: 10px; right: 14px; font-size: 1.6rem; }
 .auth-message { min-height: 1.3em; margin: 18px 0 0; color: #a8ceff; font-size: 0.9rem; }
 

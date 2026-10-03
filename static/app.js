@@ -4,7 +4,21 @@ let authMethods = null;
 let currentUser = null;
 let authDialog = null;
 let authReadyResolver;
+let pendingAuthMessage = '';
 const authReady = new Promise((resolve) => { authReadyResolver = resolve; });
+
+function googleSignInErrorMessage(error) {
+  const messages = {
+    'auth/popup-closed-by-user': 'Google sign-in was cancelled. Choose Continue with Google to try again.',
+    'auth/popup-blocked': 'Your browser blocked the sign-in window. Allow pop-ups for this site and try again.',
+    'auth/unauthorized-domain': `This site (${window.location.hostname}) is not authorized in Firebase Authentication. Add this exact hostname under Authentication > Settings > Authorized domains.`,
+    'auth/operation-not-allowed': 'Google sign-in is disabled. In Firebase Console, open Authentication > Sign-in method and enable Google.',
+    'auth/account-exists-with-different-credential': 'This email already has an account with a different sign-in method. Use that method to sign in.',
+    'auth/invalid-api-key': 'Firebase rejected the web API key. Check FIREBASE_API_KEY in the deployment settings.',
+    'auth/network-request-failed': 'Could not reach Google/Firebase Authentication. Check your connection and try again.',
+  };
+  return messages[error?.code] || 'Google sign-in failed. Check Firebase Authentication settings and try again.';
+}
 
 async function initializeFirebaseAuth() {
   try {
@@ -13,7 +27,7 @@ async function initializeFirebaseAuth() {
       throw new Error(`Firebase config request failed (${configResponse.status}).`);
     }
     const config = await configResponse.json();
-    if (!config.apiKey || !config.projectId || !config.appId) {
+    if (!config.apiKey || !config.authDomain || !config.projectId || !config.appId) {
       authReadyResolver(false);
       return;
     }
@@ -29,6 +43,20 @@ async function initializeFirebaseAuth() {
       updateAuthButton();
       authReadyResolver(true);
     });
+    try {
+      const redirectResult = await authSdk.getRedirectResult(auth);
+      if (redirectResult && !redirectResult.user.emailVerified) {
+        await authSdk.signOut(auth);
+        pendingAuthMessage = 'This Google account email is not verified. Verify it with Google, then try again.';
+      }
+    } catch (error) {
+      pendingAuthMessage = googleSignInErrorMessage(error);
+      if (authDialog && !authDialog.hidden) {
+        authDialog.querySelector('#auth-message').textContent = pendingAuthMessage;
+        pendingAuthMessage = '';
+      }
+      console.error('Google sign-in redirect could not be completed.', error);
+    }
   } catch (error) {
     console.error('Firebase sign-in could not be initialized.', error);
     authReadyResolver(false);
@@ -46,7 +74,7 @@ function setupAuthUi() {
   accountButton.className = 'secondary auth-button';
   accountButton.id = 'auth-button';
   accountButton.type = 'button';
-  accountButton.textContent = 'Sign in';
+  accountButton.textContent = 'Sign in (optional)';
   nav.append(account, accountButton);
   accountButton.addEventListener('click', async () => {
     await authReady;
@@ -63,8 +91,9 @@ function setupAuthUi() {
   authDialog.innerHTML = `
     <section class="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-title">
       <button class="auth-close" type="button" aria-label="Close sign-in">&times;</button>
-      <p class="eyebrow">Student account</p>
+      <p class="eyebrow">Optional account</p>
       <h2 id="auth-title">Sign in to EduGenie</h2>
+      <p>Sign-in is optional. You can use all learning tools without an account; sign in only to save your chat history.</p>
       <button class="secondary google-auth-button" id="google-sign-in" type="button">Continue with Google</button>
       <form id="auth-form">
         <label for="auth-email">Email address</label>
@@ -74,6 +103,7 @@ function setupAuthUi() {
         <button class="primary auth-submit" type="submit">Sign in</button>
       </form>
       <button class="auth-mode" id="auth-mode" type="button">Create an account</button>
+      <button class="auth-reset" id="auth-verification-resend" type="button" hidden>Resend verification email</button>
       <button class="auth-reset" id="auth-reset" type="button">Reset password</button>
       <p class="auth-message" id="auth-message" role="status"></p>
     </section>`;
@@ -85,6 +115,7 @@ function setupAuthUi() {
   const password = authDialog.querySelector('#auth-password');
   const authTitle = authDialog.querySelector('#auth-title');
   const modeButton = authDialog.querySelector('#auth-mode');
+  const resendVerificationButton = authDialog.querySelector('#auth-verification-resend');
 
   const setAuthMode = (isCreatingAccount) => {
     creatingAccount = isCreatingAccount;
@@ -100,7 +131,49 @@ function setupAuthUi() {
   });
   modeButton.addEventListener('click', () => {
     setAuthMode(!creatingAccount);
+    resendVerificationButton.hidden = true;
     message.textContent = '';
+  });
+  resendVerificationButton.addEventListener('click', async () => {
+    await authReady;
+    if (!auth || !authMethods) {
+      message.textContent = 'Email sign-in is not configured. Check the Firebase web app settings.';
+      return;
+    }
+    const email = authDialog.querySelector('#auth-email').value.trim();
+    const secret = password.value;
+    if (!email || !secret) {
+      message.textContent = 'Enter your email and password first so Firebase can securely resend the verification email.';
+      return;
+    }
+
+    resendVerificationButton.disabled = true;
+    message.textContent = 'Requesting a verification email...';
+    let signedInForResend = false;
+    try {
+      const credential = await authMethods.signInWithEmailAndPassword(auth, email, secret);
+      signedInForResend = true;
+      if (credential.user.emailVerified) {
+        signedInForResend = false;
+        closeAuthDialog();
+        return;
+      }
+      await authMethods.sendEmailVerification(credential.user);
+      message.textContent = 'Verification email sent. Check your inbox and spam folder, open the latest message, and follow its verification link.';
+    } catch (error) {
+      const resendMessages = {
+        'auth/too-many-requests': 'Firebase is temporarily limiting verification emails. Stop retrying, wait before requesting again, and check your inbox and spam folder for an earlier message.',
+        'auth/invalid-credential': 'The email or password is incorrect. Check them and try again.',
+        'auth/network-request-failed': 'Could not reach Firebase. Check your connection and try again later.',
+        'auth/unauthorized-domain': `This site (${window.location.hostname}) is not authorized in Firebase Authentication.`,
+      };
+      message.textContent = resendMessages[error.code] || 'Could not send the verification email. Wait and try again later.';
+    } finally {
+      if (signedInForResend) {
+        await authMethods.signOut(auth);
+      }
+      resendVerificationButton.disabled = false;
+    }
   });
   authDialog.querySelector('#google-sign-in').addEventListener('click', async (event) => {
     const googleButton = event.currentTarget;
@@ -111,24 +184,30 @@ function setupAuthUi() {
     }
     googleButton.disabled = true;
     message.textContent = 'Opening Google sign-in...';
+    pendingAuthMessage = '';
     try {
       const provider = new authMethods.GoogleAuthProvider();
-      const credential = await authMethods.signInWithPopup(auth, provider);
-      if (!credential.user.emailVerified) {
-        await authMethods.signOut(auth);
-        message.textContent = 'This Google account email is not verified. Verify it with Google, then try again.';
+      provider.setCustomParameters({ prompt: 'select_account' });
+      if (/(android|iphone|ipad|ipod)/i.test(navigator.userAgent)) {
+        message.textContent = 'Redirecting to Google sign-in...';
+        await authMethods.signInWithRedirect(auth, provider);
         return;
       }
-      closeAuthDialog();
+      try {
+        const credential = await authMethods.signInWithPopup(auth, provider);
+        if (!credential.user.emailVerified) {
+          await authMethods.signOut(auth);
+          message.textContent = 'This Google account email is not verified. Verify it with Google, then try again.';
+          return;
+        }
+        closeAuthDialog();
+      } catch (error) {
+        if (error.code !== 'auth/popup-blocked') throw error;
+        message.textContent = 'Your browser blocked the sign-in window. Continuing with Google redirect sign-in...';
+        await authMethods.signInWithRedirect(auth, provider);
+      }
     } catch (error) {
-      const messages = {
-        'auth/popup-closed-by-user': 'Google sign-in was cancelled.',
-        'auth/popup-blocked': 'Allow pop-ups for this site, then try Google sign-in again.',
-        'auth/unauthorized-domain': 'This website domain is not authorized in Firebase Authentication.',
-        'auth/operation-not-allowed': 'Google sign-in is disabled in Firebase Authentication.',
-        'auth/account-exists-with-different-credential': 'This email already has an account using email and password. Sign in with that password, or reset it below.',
-      };
-      message.textContent = messages[error.code] || 'Google sign-in failed. Please try again.';
+      message.textContent = googleSignInErrorMessage(error);
     } finally {
       googleButton.disabled = false;
     }
@@ -153,19 +232,11 @@ function setupAuthUi() {
       } else {
         const credential = await authMethods.signInWithEmailAndPassword(auth, email, secret);
         if (!credential.user.emailVerified) {
-          try {
-            await authMethods.sendEmailVerification(credential.user);
-            message.textContent = 'Your email is not verified yet. We sent a new verification link. Check your inbox and spam folder, verify it, then sign in again.';
-          } catch (verificationError) {
-            const verificationMessages = {
-              'auth/too-many-requests': 'Your email is not verified yet, and Firebase is limiting verification emails. Wait a few minutes, then try signing in again.',
-              'auth/network-request-failed': 'Your email is not verified yet. Check your internet connection, then try signing in again to resend the verification link.',
-            };
-            message.textContent = verificationMessages[verificationError.code] || 'Your email is not verified yet. Check your inbox and spam folder for the verification link, then sign in again.';
-          } finally {
-            await authMethods.signOut(auth);
-          }
+          await authMethods.signOut(auth);
+          resendVerificationButton.hidden = false;
+          message.textContent = 'Your email is not verified. Check your inbox and spam folder for the verification link. Don’t keep signing in to request new messages; use Resend verification email below only if you cannot find one.';
         } else {
+          resendVerificationButton.hidden = true;
           closeAuthDialog();
         }
       }
@@ -217,7 +288,7 @@ function updateAuthButton() {
   const button = document.getElementById('auth-button');
   const email = document.getElementById('auth-user');
   if (!button || !email) return;
-  button.textContent = currentUser ? 'Sign out' : 'Sign in';
+  button.textContent = currentUser ? 'Sign out' : 'Sign in (optional)';
   button.title = currentUser?.email || 'Sign in with Google or email';
   email.textContent = currentUser?.email || '';
 }
@@ -225,6 +296,8 @@ function updateAuthButton() {
 function openAuthDialog() {
   if (authDialog) {
     authDialog.hidden = false;
+    authDialog.querySelector('#auth-message').textContent = pendingAuthMessage;
+    pendingAuthMessage = '';
     authDialog.querySelector('#auth-email').focus();
   }
 }
@@ -235,18 +308,15 @@ function closeAuthDialog() {
 
 async function requestApi(url, options = {}) {
   await authReady;
-  if (!auth || !currentUser) {
-    openAuthDialog();
-    throw new Error('Sign in with your verified email to use this feature.');
-  }
-  const token = await currentUser.getIdToken();
+  const token = auth && currentUser ? await currentUser.getIdToken() : null;
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
   const response = await fetch(url, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.detail || 'The request could not be completed. Please try again.');

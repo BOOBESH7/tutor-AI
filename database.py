@@ -2,6 +2,7 @@ import logging
 import json
 import os
 import sqlite3
+import tempfile
 from contextlib import closing, contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,7 +13,10 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 def _database_path() -> Path:
-    configured_path = os.getenv("DATABASE_PATH", "data/edugenie.sqlite3").strip()
+    configured_path = os.getenv("DATABASE_PATH", "").strip()
+    if not configured_path and os.getenv("VERCEL") == "1":
+        return Path(tempfile.gettempdir()) / "edugenie.sqlite3"
+
     path = Path(configured_path or "data/edugenie.sqlite3")
     return path if path.is_absolute() else BASE_DIR / path
 
