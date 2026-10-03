@@ -1,0 +1,16 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+credentials/
+data/
+tests/
+chat_history.json
+Dockerfile
+.dockerignore
+app.py
+*.sqlite3
+*.db
+*.log

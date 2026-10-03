@@ -166,6 +166,21 @@ FEATURE_ITEMS = [
 ]
 
 
+def fallback_answer(question: str, subject: str, level: str, reason: Any) -> str:
+    """Offline reply so the chat box always responds, even when AI is unavailable."""
+    return (
+        "**Local reply** (the AI service is not reachable right now)\n\n"
+        f"I received your question: **{question}**\n\n"
+        f"- Subject: {subject}\n"
+        f"- Level: {level}\n\n"
+        "**How to move forward:**\n\n"
+        "1. Split the question into the smallest part you are unsure about.\n"
+        "2. Write a tiny example and run it, or dry-run the steps on paper.\n"
+        "3. Read the exact error message and note the line it points to.\n\n"
+        f"_AI skipped because: {reason}_"
+    )
+
+
 class ChatRequest(BaseModel):
     question: str | None = Field(default=None, max_length=10000)
     message: str | None = Field(default=None, max_length=10000)
@@ -342,7 +357,11 @@ def chat(req: ChatRequest, user: Dict[str, Any] | None = Depends(optional_user))
     question = (req.question or req.message or "").strip()
     if not question:
         raise HTTPException(status_code=400, detail="Enter a question first.")
-    answer = run_ai(lambda: answer_question(question, req.subject, req.level, req.age_group))
+    try:
+        answer = run_ai(lambda: answer_question(question, req.subject, req.level, req.age_group))
+    except HTTPException as exc:
+        logger.warning("Gemini was unavailable for /qa; using the offline fallback reply.", exc_info=True)
+        answer = fallback_answer(question, req.subject, req.level, exc.detail)
     history_saved = (
         save_chat_history(user_id=str(user["uid"]), question=question, answer=answer, feature="qa")
         if user

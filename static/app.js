@@ -307,13 +307,10 @@ function closeAuthDialog() {
 }
 
 async function requestApi(url, options = {}) {
-  await authReady;
-  const token = auth && currentUser ? await currentUser.getIdToken() : null;
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
   const response = await fetch(url, {
     ...options,
     headers,
@@ -323,8 +320,6 @@ async function requestApi(url, options = {}) {
   return data;
 }
 
-setupAuthUi();
-initializeFirebaseAuth();
 
 const chatBox = document.getElementById('chat-box');
 const chatInput = document.getElementById('chat-input');
