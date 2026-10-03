@@ -2,9 +2,8 @@
   "version": 2,
   "functions": {
     "api/index.py": {
-      "runtime": "python3.12",
       "maxDuration": 60,
-      "includeFiles": "{templates,static}/**"
+      "includeFiles": ["templates/**", "static/**"]
     }
   },
   "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }]

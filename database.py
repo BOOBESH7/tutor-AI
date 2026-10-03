@@ -14,11 +14,14 @@ BASE_DIR = Path(__file__).resolve().parent
 
 def _database_path() -> Path:
     configured_path = os.getenv("DATABASE_PATH", "").strip()
-    if not configured_path and os.getenv("VERCEL") == "1":
+    if configured_path:
+        path = Path(configured_path)
+        return path if path.is_absolute() else BASE_DIR / path
+
+    if os.getenv("VERCEL") == "1" or os.getenv("RENDER"):
         return Path(tempfile.gettempdir()) / "edugenie.sqlite3"
 
-    path = Path(configured_path or "data/edugenie.sqlite3")
-    return path if path.is_absolute() else BASE_DIR / path
+    return BASE_DIR / "data" / "edugenie.sqlite3"
 
 
 @contextmanager

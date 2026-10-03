@@ -37,8 +37,11 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    initialize_database()
-    migrate_legacy_chat_history_file(BASE_DIR / "chat_history.json")
+    try:
+        initialize_database()
+        migrate_legacy_chat_history_file(BASE_DIR / "chat_history.json")
+    except Exception:
+        logger.exception("Database initialization failed; continuing without history persistence.")
     yield
 
 
@@ -51,7 +54,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+_STATIC_DIR = BASE_DIR / "static"
+if _STATIC_DIR.is_dir():
+    app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
+else:
+    logger.warning("Static directory %s is missing; /static is disabled.", _STATIC_DIR)
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
